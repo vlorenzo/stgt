@@ -5,12 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audio Transcription and Analysis</title>
     <script src="https://cdn.jsdelivr.net/npm/recordrtc/RecordRTC.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <h1>Audio Transcription and Analysis</h1>
-    <button id="startRecording">Start Recording</button>
-    <button id="stopRecording" disabled>Stop Recording</button>
-    <div id="result"></div>
+    <div id="recordingStatus"></div>
+    <div class="controls">
+        <button id="startRecording">Start Recording</button>
+        <button id="stopRecording" disabled>Stop Recording</button>
+        <select id="languageSelect">
+            <option value="it" data-label="Italian">Italian</option>
+            <option value="en" data-label="English">English</option>
+        </select>
+    </div>
+    <div id="latestResult"></div>
+    <div id="previousResults"></div>
 
     <script src="{{ url_for('static', filename='js/recorder.js') }}"></script>
 </body>
