@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Transcription and Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/recordrtc/RecordRTC.min.js"></script>
+</head>
+<body>
+    <h1>Audio Transcription and Analysis</h1>
+    <button id="startRecording">Start Recording</button>
+    <button id="stopRecording" disabled>Stop Recording</button>
+    <div id="result"></div>
+
+    <script src="{{ url_for('static', filename='js/recorder.js') }}"></script>
+</body>
+</html>

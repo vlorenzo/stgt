@@ -1,0 +1,108 @@
+
+# .cursorrules
+
+# General rules
+
+- Verify information before making changes
+- Preserve existing code structures
+- Provide concise and relevant responses
+- Verify all information before making changes
+
+You will be penalized if you:
+- Skip steps in your thought process
+- Add placeholders or TODOs for other developers
+- Deliver code that is not production-ready
+
+I'm tipping $9000 for an optimal, elegant, minimal world-class solution that meets all specifications. Your code changes
+should be specific and complete. Think through the problem step-by-step.
+
+YOU MUST:
+
+- Follow the User's intent PRECISELY
+- NEVER break existing functionality by removing/modifying code or CSS without knowing exactly how to restore the same functionality.
+- Always strive to make your diff as tiny as possible
+
+# File-by-file changes
+
+- Make changes in small, incremental steps
+- Test changes thoroughly before committing
+- Document changes clearly in commit messages
+
+# Code style and formatting
+
+- Follow the project's coding standards
+- Use consistent naming conventions
+- Avoid using deprecated functions or libraries
+
+# Debugging and testing
+
+- Include debug information in log files
+- Write unit tests for new code
+- Ensure all tests pass before merging
+
+# Project structure
+
+- Maintain a clear and organized project structure
+- Use meaningful names for files and directories
+- Avoid clutter by removing unnecessary files
+
+# CleanCode
+
+Don't Repeat Yourself (DRY)
+Duplication of code can make code very difficult to maintain. Any change in logic can make the code prone to bugs or can
+make the code change difficult. This can be fixed by doing code reuse (DRY Principle).
+
+The DRY principle is stated as "Every piece of knowledge must have a single, unambiguous, authoritative representation
+within a system".
+
+The way to achieve DRY is by creating functions and classes to make sure that any logic should be written in only one
+place.
+
+Curly's Law - Do One Thing
+Curly's Law is about choosing a single, clearly defined goal for any particular bit of code: Do One Thing.
+
+Curly's Law: A entity (class, function, variable) should mean one thing, and one thing only. It should not mean one
+thing in one circumstance and carry a different value from a different domain some other time. It should not mean two
+things at once. It should mean One Thing and should mean it all of the time.
+
+Keep It Simple Stupid (KISS)
+The KISS principle states that most systems work best if they are kept simple rather than made complicated; therefore,
+simplicity should be a key goal in design, and unnecessary complexity should be avoided.
+
+Simple code has the following benefits:
+
+less time to write
+less chances of bugs
+easier to understand, debug and modify
+Do the simplest thing that could possibly work.
+
+Don't make me think
+Code should be easy to read and understand without much thinking. If it isn't then there is a prospect of
+simplification.
+
+
+
+Code for the Maintainer
+Code maintenance is an expensive and difficult process. Always code considering someone else as the maintainer and
+making changes accordingly even if you're the maintainer. After a while, you'll remember the code as much as a stranger.
+
+Always code as if the person who ends up maintaining your code is a violent psychopath who knows where you live.
+
+Principle of Least Astonishment
+Principle of Least Astonishment states that a component of a system should behave in a way that most users will expect
+it to behave. The behavior should not astonish or surprise users.
+
+Code should do what the name and comments suggest. Conventions should be followed. Surprising side effects should be
+avoided as much as possible.
+
+# Project specific rules
+
+Python-based software project with a web interface that captures audio input from users via a computer microphone. The audio should be recorded and saved as a WAV file. The backend of the application should then send this audio file to an OpenAI service for speech-to-text transcription and text processing. The goal is to efficiently transcribe spoken words into text and rewrite the text to be correct and brief for an email message content.
+We will use the OpenAI API and new model named "gpt-4o-audio-preview" 
+
+@Docs
+{
+  "library_name": "OpenAI ",
+  "documentation": "https://platform.openai.com/docs/guides/audio?lang=python&audio-generation-quickstart-example=audio-in"
+}
+
