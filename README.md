@@ -1,2 +1,2 @@
 # stgt
-Speach to good text
+Speech to good text
