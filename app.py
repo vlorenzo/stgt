@@ -3,13 +3,13 @@ import tempfile
 from flask import Flask, render_template, request, jsonify
 import pyaudio
 import wave
-import openai
+from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
 
 app = Flask(__name__)
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 @app.route('/')
 def index():
@@ -24,19 +24,23 @@ def transcribe():
         
     try:
         with open(temp_audio.name, "rb") as audio_file:
-            transcript = openai.Audio.transcribe("whisper-1", audio_file)
+            transcript = client.audio.transcriptions.create(
+                model="whisper-1", #"large-v3-turbo", 
+                file=audio_file,
+                language="it"
+            )
         
-        analysis = openai.ChatCompletion.create(
-            model="gpt-4",
+        analysis = client.chat.completions.create(
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant that analyzes text and rewrites it to be correct and brief for an email message content."},
-                {"role": "user", "content": f"Please analyze and rewrite the following text to be correct and brief for an email message content: {transcript['text']}"}
+                {"role": "user", "content": f"Please analyze and rewrite the following text to be correct and brief for an email message content and preserve the original language: {transcript.text}"}
             ]
         )
         
         return jsonify({
-            "transcript": transcript['text'],
-            "analysis": analysis.choices[0].message['content']
+            "transcript": transcript.text,
+            "analysis": analysis.choices[0].message.content
         })
     finally:
         os.unlink(temp_audio.name)
