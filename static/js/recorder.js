@@ -95,3 +95,34 @@ function copyToClipboard(elementId, buttonElement) {
         console.error('Failed to copy: ', err);
     });
 }
+
+function sendAudioToServer(audioBlob) {
+    console.log("Sending audio to server");
+    const startTime = performance.now();
+
+    const formData = new FormData();
+    formData.append('audio', audioBlob, 'recording.wav');
+
+    fetch('/record', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        const endTime = performance.now();
+        console.log(`Server processing time: ${(endTime - startTime) / 1000} seconds`);
+        
+        if (data.error) {
+            console.error("Error from server:", data.error);
+            document.getElementById('result').innerText = `Error: ${data.error}`;
+        } else {
+            console.log("Received transcription and processed text from server");
+            document.getElementById('transcript').innerText = data.transcript;
+            document.getElementById('processed-text').innerText = data.processed_text;
+        }
+    })
+    .catch(error => {
+        console.error("Error sending audio to server:", error);
+        document.getElementById('result').innerText = `Error: ${error.message}`;
+    });
+}
