@@ -1,14 +1,15 @@
 # STGT (Speech to Good Text)
 
-STGT is an AI-powered application that allows users to record audio, transcribe it, and receive an AI-generated analysis of the content. It supports multiple languages and provides a user-friendly web interface.
+STGT is an AI-powered application that allows users to record audio, transcribe it, and receive an improved version of the text suitable for email content. It supports multiple languages and provides a user-friendly web interface.
 
 ## Core Features
 
 - Audio recording through the browser
-- Transcription of audio using OpenAI's Whisper model
-- AI-powered analysis and rewriting of the transcribed text using GPT-4
+- Transcription of audio using OpenAI's speech-to-text service
+- AI-powered rewriting of the transcribed text to improve quality and brevity for email content
+- Optional translation to a target language
 - Support for multiple languages
-- Real-time display of transcription and analysis results
+- Real-time display of transcription and improved text results
 - Copy-to-clipboard functionality for easy sharing
 
 ## Prerequisites
@@ -36,18 +37,7 @@ STGT is an AI-powered application that allows users to record audio, transcribe 
 
 ## Usage
 
-### For macOS and Linux users:
-
 1. Open a terminal and navigate to the project directory.
-2. Run the following command to start the application:
-   ```
-   python app.py
-   ```
-3. Open a web browser and go to `http://localhost:5000`.
-
-### For Windows users:
-
-1. Open Command Prompt and navigate to the project directory.
 2. Run the following command to start the application:
    ```
    python app.py
@@ -59,9 +49,10 @@ STGT is an AI-powered application that allows users to record audio, transcribe 
 1. Select your desired language from the dropdown menu.
 2. Click the "Start Recording" button and speak into your microphone.
 3. Click "Stop Recording" when you're finished speaking.
-4. Wait for the transcription and analysis to complete.
-5. View the transcription and AI-generated analysis.
-6. Use the copy button to easily copy the analysis to your clipboard.
+4. Wait for the transcription and text improvement to complete.
+5. View the original transcription and the improved text for email use.
+6. Optionally, select a target language for translation.
+7. Use the copy button to easily copy the improved text to your clipboard.
 
 ## Contributing
 
