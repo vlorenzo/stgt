@@ -5,6 +5,7 @@ const latestResultDiv = document.getElementById('latestResult');
 const previousResultsDiv = document.getElementById('previousResults');
 const recordingStatus = document.getElementById('recordingStatus');
 const languageSelect = document.getElementById('languageSelect');
+const outputTypeSelect = document.getElementById('outputTypeSelect');
 
 startButton.onclick = function() {
     startButton.disabled = true;
@@ -36,12 +37,15 @@ stopButton.onclick = function() {
         let formData = new FormData();
         formData.append('audio', blob, 'recording.webm');
         
-        const selectedOption = languageSelect.options[languageSelect.selectedIndex];
+        const selectedLanguageOption = languageSelect.options[languageSelect.selectedIndex];
         const language = {
-            code: selectedOption.value,
-            label: selectedOption.dataset.label
+            code: selectedLanguageOption.value,
+            label: selectedLanguageOption.dataset.label
         };
         formData.append('language', JSON.stringify(language));
+        
+        const outputType = outputTypeSelect.value;
+        formData.append('output_type', outputType);
         
         fetch('/transcribe', {
             method: 'POST',

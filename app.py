@@ -12,6 +12,7 @@ from logging.handlers import RotatingFileHandler
 import time
 from werkzeug.utils import secure_filename
 
+# Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
@@ -23,45 +24,66 @@ file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s: %(messag
 file_handler.setLevel(logging.INFO)
 app.logger.addHandler(file_handler)
 
+# Initialize OpenAI client
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 @app.route('/')
 def index():
+    """Render the main page of the application."""
     return render_template('index.html')
 
 @app.route('/transcribe', methods=['POST'])
 def transcribe():
+    """
+    Handle audio transcription and translation requests.
+    This function receives an audio file, transcribes it from Italian,
+    then translates and improves the text to the specified target language and output type.
+    """
     app.logger.info("Received transcription request")
     start_time = time.time()
 
+    # Get audio file, target language, and output type from the request
     audio_file = request.files['audio']
     language_json = request.form.get('language', '{"code": "it", "label": "Italian"}')
     language = json.loads(language_json)
+    output_type = request.form.get('output_type', 'general')
     
     transcription_time = datetime.now().strftime("%H:%M:%S")
     
+    # Save the audio file temporarily
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_audio:
         audio_file.save(temp_audio.name)
         
     try:
+        # Step 1: Transcribe audio (always from Italian)
         app.logger.debug("Starting OpenAI API call for transcription")
         api_start_time = time.time()
         with open(temp_audio.name, "rb") as audio_file:
             transcript = client.audio.transcriptions.create(
                 model="whisper-1", 
                 file=audio_file,
-                language=language['code']
+                language="it"  # Always use Italian for input
             )
         api_end_time = time.time()
         app.logger.info(f"OpenAI API transcription completed in {api_end_time - api_start_time:.2f} seconds")
 
-        system_prompt = f"You are a helpful assistant that analyzes text and rewrites it to be correct and brief as for an email like message content. Respond in {language['label']}."
-        user_prompt = f"Please analyze and rewrite the following text in {language['label']}: {transcript.text}"
+        # Step 2: Translate and improve the transcribed text
+        system_prompt = f"""
+        You are a helpful assistant that translates Italian text to {language['label']} 
+        and improves it to be correct and brief for a {output_type}. 
+        Adapt the style and tone to be appropriate for the specified output type.
+        Just output the translated and improved text.
+        """
+        user_prompt = f"""
+        Please translate the following Italian text to {language['label']} and format it as a {output_type}:
+
+        {transcript.text}
+        """
         
         app.logger.debug("Starting OpenAI API call for text processing")
         api_start_time = time.time()
         analysis = client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
@@ -75,6 +97,7 @@ def transcribe():
         end_time = time.time()
         app.logger.info(f"Total processing time: {end_time - start_time:.2f} seconds")
 
+        # Return the results
         return jsonify({
             "transcript": transcript.text,
             "transcription_time": transcription_time,
@@ -85,10 +108,18 @@ def transcribe():
         app.logger.error(f"Error processing audio: {str(e)}")
         return jsonify({'error': str(e)}), 500
     finally:
+        # Clean up the temporary audio file
         os.unlink(temp_audio.name)
 
+# The /record route is commented out as it's not being used in the current implementation
+'''
 @app.route('/record', methods=['POST'])
 def record():
+    """
+    Handle audio recording requests.
+    This function receives an audio file, saves it, transcribes it,
+    and then processes the transcription to make it suitable for an email.
+    """
     app.logger.info("Received audio recording request")
     start_time = time.time()
     
@@ -102,12 +133,14 @@ def record():
         return jsonify({'error': 'No selected file'}), 400
 
     if audio_file:
+        # Save the audio file
         filename = secure_filename(audio_file.filename)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         audio_file.save(filepath)
         app.logger.info(f"Audio file saved: {filepath}")
 
         try:
+            # Transcribe the audio
             app.logger.debug("Starting OpenAI API call for transcription")
             api_start_time = time.time()
             with open(filepath, "rb") as file:
@@ -115,13 +148,22 @@ def record():
             api_end_time = time.time()
             app.logger.info(f"OpenAI API transcription completed in {api_end_time - api_start_time:.2f} seconds")
 
+            # Process the transcription
             app.logger.debug("Starting OpenAI API call for text processing")
             api_start_time = time.time()
             response = openai.ChatCompletion.create(
                 model="gpt-4",
                 messages=[
-                    {"role": "system", "content": "You are a helpful assistant that rewrites text to be correct and brief for an email message content."},
-                    {"role": "user", "content": f"Please rewrite the following text to be correct and brief for an email message content: {transcript['text']}"}
+                    {"role": "system", "content": """
+                    You are a helpful assistant that rewrites text to be correct 
+                    and brief for an email message content.
+                    """},
+                    {"role": "user", "content": f"""
+                    Please rewrite the following text to be correct and brief 
+                    for an email message content:
+
+                    {transcript['text']}
+                    """}
                 ]
             )
             api_end_time = time.time()
@@ -139,6 +181,7 @@ def record():
     
     app.logger.error("Unknown error occurred")
     return jsonify({'error': 'Unknown error occurred'}), 500
+'''
 
 if __name__ == '__main__':
     app.logger.info("Starting the application")
