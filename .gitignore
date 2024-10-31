@@ -2,4 +2,7 @@ stt_openai_env/
 *.pyc
 __pycache__/
 .env
+*.log.*
 *.log
+*.pem
+

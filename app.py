@@ -11,11 +11,13 @@ import logging
 from logging.handlers import RotatingFileHandler
 import time
 from werkzeug.utils import secure_filename
+from flask_cors import CORS
 
 # Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app)
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -185,4 +187,4 @@ def record():
 
 if __name__ == '__main__':
     app.logger.info("Starting the application")
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5001, ssl_context=('cert.pem', 'key.pem'))

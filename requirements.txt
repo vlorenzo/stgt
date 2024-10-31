@@ -2,3 +2,5 @@ Flask==2.3.2
 PyAudio==0.2.13
 openai
 python-dotenv
+flask-cors
+pyopenssl
