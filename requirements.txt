@@ -4,3 +4,7 @@ openai
 python-dotenv
 flask-cors
 pyopenssl
+openai-whisper
+--find-links https://download.pytorch.org/whl/torch_stable.html
+torch>=2.1.0
+coloredlogs

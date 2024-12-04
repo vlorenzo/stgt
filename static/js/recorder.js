@@ -6,6 +6,7 @@ const previousResultsDiv = document.getElementById('previousResults');
 const recordingStatus = document.getElementById('recordingStatus');
 const languageSelect = document.getElementById('languageSelect');
 const outputTypeSelect = document.getElementById('outputTypeSelect');
+const modelSelect = document.getElementById('modelSelect');
 
 startButton.onclick = function() {
     startButton.disabled = true;
@@ -54,7 +55,8 @@ stopButton.onclick = function() {
 
 function handleError(message) {
     console.error(message);
-    recordingStatus.textContent = message;
+    const formattedMessage = message.replace(/\n/g, '<br>');
+    recordingStatus.innerHTML = `<div class="error-message">${formattedMessage}</div>`;
     startButton.disabled = false;
     stopButton.disabled = true;
 }
@@ -72,6 +74,11 @@ function sendAudioToServer(blob) {
     
     const outputType = outputTypeSelect.value;
     formData.append('output_type', outputType);
+    
+    const useLocalModel = modelSelect.value === 'local';
+    formData.append('use_local_model', useLocalModel);
+    
+    recordingStatus.textContent = `Processing with ${useLocalModel ? 'local' : 'remote'} Whisper model...`;
     
     fetch('/transcribe', {
         method: 'POST',

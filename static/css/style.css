@@ -14,9 +14,18 @@ h1 {
 }
 
 .controls {
+    margin: 20px 0;
     display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+button, select {
+    padding: 8px 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
 }
 
 button {
@@ -58,13 +67,29 @@ h2 {
     color: #e74c3c;
 }
 
+.error-message {
+    background-color: #fee;
+    border: 1px solid #fcc;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 10px 0;
+    color: #c0392b;
+    line-height: 1.5;
+}
+
 select {
-    padding: 10px;
-    margin: 0 10px;
-    border-radius: 5px;
-    border: 1px solid #3498db;
     background-color: white;
-    color: #333;
+    cursor: pointer;
+}
+
+#modelSelect {
+    background-color: #f8f9fa;
+    border-color: #6c757d;
+    color: #495057;
+}
+
+#modelSelect option {
+    padding: 8px;
 }
 
 .timestamp {

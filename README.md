@@ -1,81 +1,169 @@
-# STGT (Speech to Good Text)
+# STGT - Speech To Generative Text
 
-STGT is an AI-powered application that allows users to record audio, transcribe it, and receive an improved version of the text suitable for various output types. It supports multiple languages and provides a user-friendly web interface with secure HTTPS connection.
+A Flask-based web application that transcribes speech to text and enhances it using AI. The application supports both OpenAI's Whisper API and local Whisper model for transcription, with special optimizations for macOS.
 
-## Core Features
+## Features
 
-- Audio recording through the browser
-- Transcription of audio using OpenAI's speech-to-text service
-- AI-powered rewriting of the transcribed text to improve quality and brevity for various output types
-- Optional translation to a target language
-- Support for multiple languages
-- Real-time display of transcription and improved text results
-- Copy-to-clipboard functionality for easy sharing
-- Secure HTTPS connection
+- Real-time audio recording through web browser
+- Dual transcription options:
+  - OpenAI Whisper API (requires API key, faster)
+  - Local Whisper model (offline capable, no API costs)
+- Multiple Whisper model options (base, small, medium, large, turbo)
+- Text enhancement using GPT-4
+- Support for multiple output formats:
+  - Email
+  - WhatsApp messages
+  - AI prompts
+  - General text
+- Clean and responsive web interface
+- Detailed logging system
 
 ## Prerequisites
 
-- Python 3.7 or higher
-- OpenAI API key
-- OpenSSL (for generating SSL certificate)
+- macOS (tested on Sonoma 14.0+)
+- Python 3.10 
+- Homebrew (for installing ffmpeg)
+- OpenAI API key (for OpenAI services)
 
 ## Installation
 
-1. Clone the repository:
+1. **Install Homebrew** (if not already installed):
+   ```bash
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
    ```
-   git clone https://github.com/vlorenzo/stgt.git
+
+2. **Install ffmpeg** (required for local Whisper model):
+   ```bash
+   brew install ffmpeg
+   ```
+
+3. **Clone the repository**:
+   ```bash
+   git clone https://github.com/yourusername/stgt.git
    cd stgt
    ```
 
-2. Install the required packages:
+4. **Create and activate a Python virtual environment**:
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
    ```
+
+5. **Install dependencies**:
+   ```bash
    pip install -r requirements.txt
    ```
 
-3. Create a `.env` file in the project root and add your OpenAI API key:
+6. **Set up environment variables**:
+   ```bash
+   cp .env.example .env
+   ```
+   Then edit `.env` and add your OpenAI API key:
    ```
    OPENAI_API_KEY=your_api_key_here
    ```
 
-4. Generate a self-signed SSL certificate (for development purposes only):
-   ```
+7. **Generate SSL certificate** (required for microphone access):
+   ```bash
    openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365
    ```
-   When prompted for "Common Name", enter `localhost` or your local IP address.
+   When prompted for "Common Name", enter `localhost`
+
+## Running the Application
+
+1. **Start the Flask server**:
+   ```bash
+   python app.py
+   ```
+
+2. **Access the application**:
+   - Open your browser and go to `https://localhost:5001`
+   - Accept the self-signed certificate warning (this is safe for local development)
 
 ## Usage
 
-1. Open a terminal and navigate to the project directory.
-2. Run the following command to start the application:
-   ```
-   python app.py
-   ```
-3. Open a web browser and go to `https://localhost:5001` or `https://your.local.ip.address:5001`.
-   Note: Your browser may warn you about the self-signed certificate. You'll need to proceed anyway (this is safe for local development).
+1. **Choose your transcription settings**:
+   - **Language**: Select target language (default is Italian)
+   - **Output Format**: Choose between email, WhatsApp, AI prompt, or general text
+   - **Transcription Model**: 
+     - Remote (OpenAI API) - Faster, requires internet
+     - Local (Whisper) - Works offline, runs on your machine
 
-## How to Use
+2. **Record your speech**:
+   - Click "Start Recording"
+   - Speak into your microphone
+   - Click "Stop Recording" when done
 
-1. Select your desired output language from the dropdown menu.
-2. Choose the output type (email, WhatsApp message, AI model prompt, or general text).
-3. Click the "Start Recording" button and speak into your microphone.
-4. Click "Stop Recording" when you're finished speaking.
-5. Wait for the transcription and text improvement to complete.
-6. View the original Italian transcription and the improved text in the selected language and format.
-7. Use the copy button to easily copy the improved text to your clipboard.
+3. **View Results**:
+   - Original transcription will appear
+   - Enhanced/translated text will follow
+   - Use the copy button to copy the enhanced text
+
+## Transcription Models
+
+When using the local Whisper model, you can choose between different model sizes:
+- `base`: Fastest, lowest accuracy
+- `small`: Good balance for general use
+- `medium`: Better accuracy, slower
+- `large`: Best accuracy, requires more memory
+- `turbo`: Latest model, optimized for speed
+
+To change the model, modify `model_size` in `src/services/transcription.py`:
+```python
+self.model = whisper.load_model("base")  # Change "base" to your preferred model
+```
+
+## Logging
+
+The application provides two levels of logging:
+- **Console**: Shows main steps and timing in color-coded format
+- **File**: Detailed debug information in `app.log`
+
+Log files rotate automatically when they reach 1MB, keeping up to 10 backup files.
 
 ## Troubleshooting
 
-- If you encounter issues with microphone access, ensure you're using a modern browser and that you've granted the necessary permissions.
-- If you're using Chrome and having issues with the self-signed certificate, you can enable insecure localhost by visiting `chrome://flags/#allow-insecure-localhost` and enabling the flag.
+1. **Microphone Access Issues**:
+   - Ensure you've granted browser permission for microphone
+   - Check that you're using HTTPS (required for microphone access)
+   - Try restarting your browser if permissions don't appear
 
-## Security Note
+2. **Certificate Warnings**:
+   - The warning about self-signed certificate is normal in development
+   - Click "Advanced" and "Proceed to localhost" in your browser
 
-The provided SSL setup is for development purposes only. For production use, obtain a proper SSL certificate from a trusted Certificate Authority.
+3. **Local Whisper Model Issues**:
+   - Verify ffmpeg is installed: `brew list ffmpeg`
+   - Check Python environment is activated
+   - Ensure enough disk space for model downloads
+
+4. **OpenAI API Issues**:
+   - Verify your API key in `.env`
+   - Check your OpenAI account has available credits
+   - Ensure internet connectivity
+
+## Project Structure
+
+```
+project_root/
+├── src/                    # Source code directory
+│   ├── config/            # Configuration modules
+│   ├── services/          # Business logic
+│   ├── routes/            # API routes
+│   └── utils/             # Utility functions
+├── static/                # Static files (CSS, JS)
+├── templates/             # HTML templates
+└── app.py                # Main application entry point
+```
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request to the [STGT repository](https://github.com/vlorenzo/stgt).
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License
