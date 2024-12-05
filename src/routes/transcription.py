@@ -6,15 +6,40 @@ import json
 import logging
 from datetime import datetime
 import time
+import wave
+from mutagen import File
 from flask import Blueprint, request, jsonify, render_template
 from ..services.transcription import TranscriptionFactory
-from openai import OpenAI
+from ..services.text_enhancement import TextEnhancementFactory
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
-# Initialize OpenAI client for text processing
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+def get_audio_duration(file_path: str) -> float:
+    """Get the duration of an audio file in seconds.
+    
+    Args:
+        file_path: Path to the audio file
+        
+    Returns:
+        Duration in seconds
+    """
+    try:
+        audio = File(file_path)
+        if audio is not None and hasattr(audio.info, 'length'):
+            return audio.info.length
+        
+        # Fallback to wave for WAV files
+        if file_path.lower().endswith('.wav'):
+            with wave.open(file_path, 'rb') as wav_file:
+                frames = wav_file.getnframes()
+                rate = wav_file.getframerate()
+                return frames / float(rate)
+                
+        return 0.0
+    except Exception as e:
+        logger.warning(f"Could not determine audio duration: {str(e)}")
+        return 0.0
 
 # Create blueprint
 transcription_bp = Blueprint('transcription', __name__)
@@ -36,14 +61,23 @@ def transcribe():
     language = json.loads(language_json)
     output_type = request.form.get('output_type', 'general')
     use_local_model = request.form.get('use_local_model', 'false').lower() == 'true'
+    use_local_enhancement = request.form.get('use_local_enhancement', 'false').lower() == 'true'
     
     transcription_time = datetime.now().strftime("%H:%M:%S")
-    logger.debug(f"Request parameters: language={language}, output_type={output_type}, use_local_model={use_local_model}")
+    logger.debug(
+        f"Request parameters: language={language}, output_type={output_type}, "
+        f"use_local_model={use_local_model}, use_local_enhancement={use_local_enhancement}"
+    )
     
     # Save the audio file temporarily
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_audio:
         audio_file.save(temp_audio.name)
         logger.debug(f"Saved temporary audio file: {temp_audio.name}")
+        
+        # Get and log audio duration
+        duration = get_audio_duration(temp_audio.name)
+        duration_msg = f"Audio duration: {duration:.2f} seconds"
+        logger.info(duration_msg)
         
     try:
         # Step 1: Transcribe audio
@@ -60,33 +94,20 @@ def transcribe():
 
         # Step 2: Translate and improve the text
         step_start_time = time.time()
-        logger.info("Starting text enhancement with GPT")
+        enhancement_type = "Local Llama" if use_local_enhancement else "OpenAI GPT"
+        logger.info(f"Starting text enhancement with {enhancement_type}")
         
-        system_prompt = f"""
-        You are a helpful assistant that translates Italian text to {language['label']} 
-        and improves it to be correct and brief for a {output_type}. 
-        Adapt the style and tone to be appropriate for the specified output type.
-        Just output the translated and improved text.
-        """
-        
-        user_prompt = f"""
-        Please translate the following Italian text to {language['label']} and format it as a {output_type}:
-
-        {transcript_text}
-        """
-        
-        analysis = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ]
+        enhancement_service = TextEnhancementFactory.get_service(use_local=use_local_enhancement)
+        enhanced_text = enhancement_service.enhance(
+            text=transcript_text,
+            target_language=language['label'],
+            output_type=output_type
         )
         
         step_duration = time.time() - step_start_time
-        logger.info(f"Text enhancement completed in {step_duration:.2f}s")
-        logger.debug(f"Enhanced text: {analysis.choices[0].message.content}")
-        
+        logger.info(f"Text enhancement completed in {step_duration:.2f}s using {enhancement_type}")
+        logger.debug(f"Enhanced text: {enhanced_text}")
+
         analysis_time = datetime.now().strftime("%H:%M:%S")
         total_duration = time.time() - start_time
         logger.info(f"=== Request completed in {total_duration:.2f}s ===")
@@ -95,8 +116,9 @@ def transcribe():
         return jsonify({
             "transcript": transcript_text,
             "transcription_time": transcription_time,
-            "analysis": analysis.choices[0].message.content,
-            "analysis_time": analysis_time
+            "analysis": enhanced_text,
+            "analysis_time": analysis_time,
+            "audio_duration": f"{duration:.2f}"
         })
         
     except Exception as e:
@@ -114,4 +136,4 @@ def transcribe():
     finally:
         # Clean up the temporary audio file
         os.unlink(temp_audio.name)
-        logger.debug("Cleaned up temporary audio file")
+        logger.debug(f"Cleaned up temporary audio file {temp_audio.name}")

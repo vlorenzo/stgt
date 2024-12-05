@@ -82,13 +82,13 @@ select {
     cursor: pointer;
 }
 
-#modelSelect {
+#modelSelect, #enhancementModelSelect {
     background-color: #f8f9fa;
     border-color: #6c757d;
     color: #495057;
 }
 
-#modelSelect option {
+#modelSelect option, #enhancementModelSelect option {
     padding: 8px;
 }
 

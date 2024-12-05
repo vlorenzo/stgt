@@ -7,6 +7,7 @@ const recordingStatus = document.getElementById('recordingStatus');
 const languageSelect = document.getElementById('languageSelect');
 const outputTypeSelect = document.getElementById('outputTypeSelect');
 const modelSelect = document.getElementById('modelSelect');
+const enhancementModelSelect = document.getElementById('enhancementModelSelect');
 
 startButton.onclick = function() {
     startButton.disabled = true;
@@ -78,7 +79,10 @@ function sendAudioToServer(blob) {
     const useLocalModel = modelSelect.value === 'local';
     formData.append('use_local_model', useLocalModel);
     
-    recordingStatus.textContent = `Processing with ${useLocalModel ? 'local' : 'remote'} Whisper model...`;
+    const useLocalEnhancement = enhancementModelSelect.value === 'local';
+    formData.append('use_local_enhancement', useLocalEnhancement);
+    
+    recordingStatus.textContent = `Processing with ${useLocalModel ? 'local' : 'remote'} Whisper model and ${useLocalEnhancement ? 'local Llama' : 'GPT'} enhancement...`;
     
     fetch('/transcribe', {
         method: 'POST',
@@ -86,6 +90,11 @@ function sendAudioToServer(blob) {
     })
     .then(response => response.json())
     .then(data => {
+        if (data.error) {
+            handleError(data.error);
+            return;
+        }
+        
         // Move current latest result to previous results
         if (latestResultDiv.innerHTML !== '') {
             previousResultsDiv.insertAdjacentHTML('afterbegin', latestResultDiv.innerHTML);
@@ -94,6 +103,7 @@ function sendAudioToServer(blob) {
         // Add new result as the latest
         latestResultDiv.innerHTML = `
             <div class="result-item">
+                <h2>Audio Duration: <span class="timestamp">${data.audio_duration}s</span></h2>
                 <h2>Transcript: <span class="timestamp">[${data.transcription_time}]</span></h2>
                 <p>${data.transcript}</p>
                 <h2>Analysis: <span class="timestamp">[${data.analysis_time}]</span>

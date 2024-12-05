@@ -8,3 +8,5 @@ openai-whisper
 --find-links https://download.pytorch.org/whl/torch_stable.html
 torch>=2.1.0
 coloredlogs
+requests>=2.31.0
+mutagen>=1.47.0
