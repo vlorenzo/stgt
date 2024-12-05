@@ -9,7 +9,9 @@ A Flask-based web application that transcribes speech to text and enhances it us
   - OpenAI Whisper API (requires API key, faster)
   - Local Whisper model (offline capable, no API costs)
 - Multiple Whisper model options (base, small, medium, large, turbo)
-- Text enhancement using GPT-4
+- Text enhancement options:
+  - OpenAI GPT-4 (requires API key)
+  - Local LLM via Ollama (offline capable, no API costs)
 - Support for multiple output formats:
   - Email
   - WhatsApp messages
@@ -23,7 +25,8 @@ A Flask-based web application that transcribes speech to text and enhances it us
 - macOS (tested on Sonoma 14.0+)
 - Python 3.10 
 - Homebrew (for installing ffmpeg)
-- OpenAI API key (for OpenAI services)
+- OpenAI API key (optional, for OpenAI services)
+- Ollama (optional, for local LLM capabilities)
 
 ## Installation
 
@@ -37,24 +40,34 @@ A Flask-based web application that transcribes speech to text and enhances it us
    brew install ffmpeg
    ```
 
-3. **Clone the repository**:
+3. **Install Ollama** (optional, for local LLM capabilities):
+   ```bash
+   brew install ollama
+   ```
+
+4. **Download and run the Llama2 model** (if using local LLM):
+   ```bash
+   ollama pull llama2
+   ```
+
+4. **Clone the repository**:
    ```bash
    git clone https://github.com/yourusername/stgt.git
    cd stgt
    ```
 
-4. **Create and activate a Python virtual environment**:
+5. **Create and activate a Python virtual environment**:
    ```bash
    python3 -m venv .venv
    source .venv/bin/activate
    ```
 
-5. **Install dependencies**:
+6. **Install dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
 
-6. **Set up environment variables**:
+7. **Set up environment variables**:
    ```bash
    cp .env.example .env
    ```
@@ -63,7 +76,7 @@ A Flask-based web application that transcribes speech to text and enhances it us
    OPENAI_API_KEY=your_api_key_here
    ```
 
-7. **Generate SSL certificate** (required for microphone access):
+8. **Generate SSL certificate** (required for microphone access):
    ```bash
    openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365
    ```
@@ -88,6 +101,9 @@ A Flask-based web application that transcribes speech to text and enhances it us
    - **Transcription Model**: 
      - Remote (OpenAI API) - Faster, requires internet
      - Local (Whisper) - Works offline, runs on your machine
+   - **Text Enhancement**:
+     - Remote (OpenAI GPT) - More powerful, requires API key
+     - Local (Llama2) - Works offline, runs on your machine
 
 2. **Record your speech**:
    - Click "Start Recording"
@@ -111,6 +127,33 @@ When using the local Whisper model, you can choose between different model sizes
 To change the model, modify `model_size` in `src/services/transcription.py`:
 ```python
 self.model = whisper.load_model("base")  # Change "base" to your preferred model
+```
+
+## Text Enhancement Models
+
+The application supports two modes for text enhancement:
+
+### OpenAI GPT
+- Requires API key
+- More powerful and accurate
+- Supports all languages
+- Faster processing
+
+### Local LLM (via Ollama)
+- Completely offline operation
+- No API costs
+- Uses Llama2 model by default
+- Can be customized with different models
+- Processing speed depends on your hardware
+
+To use a different Ollama model, modify the model name in `src/services/text_enhancement.py`:
+```python
+self.model_name = "llama2"  # Change to your preferred model
+```
+
+Available models can be listed using:
+```bash
+ollama list
 ```
 
 ## Logging
