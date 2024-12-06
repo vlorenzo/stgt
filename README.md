@@ -210,3 +210,30 @@ project_root/
 ## License
 
 MIT License
+
+## Audio Input Options
+
+The application supports two audio input sources:
+1. **Microphone**: Direct microphone input for voice recording
+2. **System Audio**: Capture system audio output using BlackHole
+
+### Setting up System Audio Capture
+
+To capture system audio, you'll need to install and configure BlackHole:
+
+1. **Install BlackHole**:
+   ```bash
+   brew install blackhole-2ch
+   ```
+
+2. **Configure System Audio**:
+   - Open System Settings > Sound
+   - Set the output device to "BlackHole 2ch"
+   - Any audio played on your system will now be captured by the application
+
+3. **Using System Audio Capture**:
+   - Select "System Audio (BlackHole)" from the audio source dropdown
+   - Start recording to capture system audio
+   - Switch back to your regular output device to hear the audio
+
+Note: When using system audio capture, make sure your system's audio is playing and BlackHole is properly configured as the output device.

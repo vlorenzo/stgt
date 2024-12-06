@@ -12,6 +12,10 @@
     <h1>Audio Transcription and Analysis</h1>
     <div id="recordingStatus"></div>
     <div class="controls">
+        <select id="audioSourceSelect" title="Choose between microphone or system audio input">
+            <option value="microphone">Microphone</option>
+            <option value="system">System Audio (BlackHole)</option>
+        </select>
         <button id="startRecording">Start Recording</button>
         <button id="stopRecording" disabled>Stop Recording</button>
         <select id="languageSelect">
