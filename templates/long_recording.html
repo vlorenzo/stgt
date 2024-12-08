@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Long Audio Recording</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/long_recording.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Long Audio Recording</h1>
+        
+        <div class="controls">
+            <button id="startButton" class="button">Start Recording</button>
+            <button id="stopButton" class="button" disabled>Stop Recording</button>
+            <div id="recordingStatus" class="status"></div>
+            <div id="timer" class="timer">00:00</div>
+        </div>
+        
+        <div class="results">
+            <h2>Transcribed Segments</h2>
+            <div id="transcriptionResults" class="transcription-results"></div>
+            
+            <h2>Enhanced Text</h2>
+            <div id="enhancedText" class="enhanced-text"></div>
+        </div>
+        
+        <div id="errorMessage" class="error-message"></div>
+    </div>
+    
+    <!-- Load dependencies -->
+    <script src="{{ url_for('static', filename='js/webaudio-recorder.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/audio-segmenter.worklet.js') }}"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const startButton = document.getElementById('startButton');
+            const stopButton = document.getElementById('stopButton');
+            const timer = document.getElementById('timer');
+            
+            // Initialize recorder with configuration
+            const recorder = new WebAudioRecorder({
+                audio_source: 'microphone',
+                source_language: 'it',
+                target_language: 'en',
+                output_type: 'email',
+                transcription_model: 'remote',
+                enhancement_model: 'remote'
+            });
+            
+            // Initialize recorder
+            await recorder.initialize();
+            
+            // Set up UI event handlers
+            startButton.addEventListener('click', async () => {
+                startButton.disabled = true;
+                stopButton.disabled = false;
+                await recorder.start();
+            });
+            
+            stopButton.addEventListener('click', async () => {
+                startButton.disabled = false;
+                stopButton.disabled = true;
+                await recorder.stop();
+            });
+            
+            // Update timer
+            let startTime;
+            let timerInterval;
+            
+            function updateTimer() {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                const seconds = (elapsed % 60).toString().padStart(2, '0');
+                timer.textContent = `${minutes}:${seconds}`;
+            }
+            
+            // Listen for recording state changes
+            document.addEventListener('recordingStarted', () => {
+                startTime = Date.now();
+                timerInterval = setInterval(updateTimer, 1000);
+            });
+            
+            document.addEventListener('recordingStopped', () => {
+                clearInterval(timerInterval);
+                timer.textContent = '00:00';
+            });
+        });
+    </script>
+</body>
+</html> 

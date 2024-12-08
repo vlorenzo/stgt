@@ -5,7 +5,8 @@ from flask import Flask
 from flask_cors import CORS
 from dotenv import load_dotenv
 from src.config.logging import configure_logging
-from src.routes import register_routes
+from src.routes.transcription import transcription_bp
+from src.routes.long_recording import long_recording_bp
 
 # Load environment variables
 load_dotenv()
@@ -22,8 +23,9 @@ def create_app():
     # Configure logging
     configure_logging(app)
     
-    # Register routes
-    register_routes(app)
+    # Register blueprints
+    app.register_blueprint(transcription_bp, name='transcription_main')
+    app.register_blueprint(long_recording_bp, name='long_recording_main')
     
     return app
 

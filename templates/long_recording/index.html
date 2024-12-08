@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Long Audio Recording</title>
+    <script src="https://cdn.jsdelivr.net/npm/recordrtc/RecordRTC.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/long_recording.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Long Audio Recording</h1>
+        <div id="recordingStatus"></div>
+
+        <div class="recording-controls">
+            <select id="audioSourceSelect" title="Choose between microphone or system audio input">
+                <option value="microphone">Microphone</option>
+                <option value="system">System Audio (BlackHole)</option>
+            </select>
+            <select id="languageSelect">
+                <option value="it" data-label="Italian">Italian</option>
+                <option value="en" data-label="English">English</option>
+            </select>
+            <select id="outputTypeSelect">
+                <option value="email">Email</option>
+                <option value="whatsapp">WhatsApp message</option>
+                <option value="ai_prompt">AI model prompt</option>
+                <option value="general">General text</option>
+            </select>
+            <select id="modelSelect" title="Choose between OpenAI's API (faster, requires internet) or local Whisper model (offline capable)">
+                <option value="remote">Remote (OpenAI API)</option>
+                <option value="local">Local (Whisper)</option>
+            </select>
+            <select id="enhancementModelSelect" title="Choose between OpenAI's GPT (faster) or local Llama model (offline capable)">
+                <option value="remote">GPT Enhancement</option>
+                <option value="local">Local Llama</option>
+            </select>
+            <button id="startLongRecording">Start Long Recording</button>
+            <button id="stopLongRecording" disabled>Stop Recording</button>
+            <div id="recordingTimer">00:00:00</div>
+        </div>
+        
+        <div class="status-panel">
+            <div class="chunks-status">
+                <div>Recorded Chunks: <span id="chunkCount">0</span></div>
+                <div>Current Duration: <span id="duration">0s</span></div>
+            </div>
+            <div class="processing-status" style="display: none;">
+                <h3>Processing Progress</h3>
+                <div class="progress-bar">
+                    <div class="progress" id="processProgress"></div>
+                </div>
+                <div>Processed: <span id="processedChunks">0</span>/<span id="totalChunks">0</span></div>
+            </div>
+        </div>
+
+        <div class="results-container">
+            <div id="transcriptionResults" class="transcription-results">
+                <h3>Transcribed Segments</h3>
+            </div>
+            <div id="enhancedResult" class="enhanced-result">
+                <!-- Enhanced text will be inserted here -->
+            </div>
+        </div>
+
+        <div id="latestResult"></div>
+        <div id="previousResults"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/long_recorder.js') }}"></script>
+</body>
+</html> 

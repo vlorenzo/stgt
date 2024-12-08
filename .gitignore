@@ -6,5 +6,5 @@ __pycache__/
 *.log
 *.pem
 .venv
-
+src/temp/*
 test.wav
